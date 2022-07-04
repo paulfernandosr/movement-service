@@ -1,0 +1,43 @@
+server:
+  port: 8084
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/movement
+  webflux:
+    base-path: /movements
+
+controller:
+  bank-account-movement:
+    base-path: /bank-account
+    method:
+      register-deposit: /deposit
+      register-withdrawal: /withdrawal
+      get-by-saving-account-id: /saving/{id}
+      get-by-fixed-term-account-id: /fixed-term/{id}
+      get-by-personal-checking-account-id: /personal-checking/{id}
+      get-by-business-checking-account-id: /business-checking/{id}
+  fixed-term-account:
+    base-path: /fixed-term
+  saving-account:
+    base-path: /saving
+  method:
+    getAll:
+    getById: /{id}
+    register:
+    updateById: /{id}
+    deleteById: /{id}
+  path-variable:
+    id: id
+
+bank-account-service:
+  base-url: http://localhost:8082/bank-accounts
+  method:
+    get-saving-account-by-id: /saving/{id}
+    get-fixed-term-account-by-id: /fixed-term/{id}
+    get-personal-checking-account-by-id: /checking/personal/{id}
+    get-business-checking-account-by-id: /checking/business/{id}
+    update-saving-account-by-id: /saving/{id}
+    update-fixed-term-account-by-id: /fixed-term/{id}
+    update-checking-account-by-id: /checking/{id}
