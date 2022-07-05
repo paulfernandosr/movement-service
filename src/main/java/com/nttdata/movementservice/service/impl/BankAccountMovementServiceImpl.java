@@ -45,23 +45,16 @@ public class BankAccountMovementServiceImpl implements IBankAccountMovementServi
 
     @Override
     public Flux<BankAccountMovementDto> getByFixedTermAccountId(String fixedTermAccountId) {
-        return repo.findBySavingAccountId(fixedTermAccountId)
+        return repo.findByFixedTermAccountId(fixedTermAccountId)
                 .map(MovementMapper::toDto)
                 .switchIfEmpty(Mono.error(new MovementNotFoundException(String.format(Constants.MOVEMENT_NOT_FOUND, Constants.ID, fixedTermAccountId))));
     }
 
     @Override
-    public Flux<BankAccountMovementDto> getByPersonalCheckingAccountId(String personalCheckingAccountId) {
-        return repo.findBySavingAccountId(personalCheckingAccountId)
+    public Flux<BankAccountMovementDto> getByCheckingAccountId(String checkingAccountId) {
+        return repo.findByCheckingAccountId(checkingAccountId)
                 .map(MovementMapper::toDto)
-                .switchIfEmpty(Mono.error(new MovementNotFoundException(String.format(Constants.MOVEMENT_NOT_FOUND, Constants.ID, personalCheckingAccountId))));
-    }
-
-    @Override
-    public Flux<BankAccountMovementDto> getByBusinessCheckingAccountId(String businessCheckingAccountId) {
-        return repo.findBySavingAccountId(businessCheckingAccountId)
-                .map(MovementMapper::toDto)
-                .switchIfEmpty(Mono.error(new MovementNotFoundException(String.format(Constants.MOVEMENT_NOT_FOUND, Constants.ID, businessCheckingAccountId))));
+                .switchIfEmpty(Mono.error(new MovementNotFoundException(String.format(Constants.MOVEMENT_NOT_FOUND, Constants.ID, checkingAccountId))));
     }
 
     @Override
@@ -70,10 +63,8 @@ public class BankAccountMovementServiceImpl implements IBankAccountMovementServi
             return registerDepositForSavingAccount(bankAccountDepositDto);
         } else if (bankAccountDepositDto.getFixedTermAccountId() != null) {
             return registerDepositForFixedTermAccount(bankAccountDepositDto);
-        } else if (bankAccountDepositDto.getPersonalCheckingAccountId() != null) {
-            return registerDepositForPersonalCheckingAccountId(bankAccountDepositDto);
-        } else if (bankAccountDepositDto.getBusinessCheckingAccountId() != null) {
-            return registerDepositForBusinessCheckingAccount(bankAccountDepositDto);
+        } else if (bankAccountDepositDto.getCheckingAccountId() != null) {
+            return registerDepositForCheckingAccountId(bankAccountDepositDto);
         }
         return Mono.error(new BadRequestException(Constants.BANK_ACCOUNT_ID_IS_REQUIRED));
     }
@@ -84,10 +75,8 @@ public class BankAccountMovementServiceImpl implements IBankAccountMovementServi
             return registerWithdrawalForSavingAccount(bankAccountWithdrawalDto);
         } else if (bankAccountWithdrawalDto.getFixedTermAccountId() != null) {
             return registerWithdrawalForFixedTermAccount(bankAccountWithdrawalDto);
-        } else if (bankAccountWithdrawalDto.getPersonalCheckingAccountId() != null) {
-            return registerWithdrawalForPersonalCheckingAccountId(bankAccountWithdrawalDto);
-        } else if (bankAccountWithdrawalDto.getBusinessCheckingAccountId() != null) {
-            return registerWithdrawalForBusinessCheckingAccount(bankAccountWithdrawalDto);
+        } else if (bankAccountWithdrawalDto.getCheckingAccountId() != null) {
+            return registerWithdrawalForCheckingAccountId(bankAccountWithdrawalDto);
         }
         return Mono.error(new BadRequestException(Constants.BANK_ACCOUNT_ID_IS_REQUIRED));
     }
@@ -121,7 +110,7 @@ public class BankAccountMovementServiceImpl implements IBankAccountMovementServi
     }
 
     private Mono<BankAccountDepositDto> registerDepositForFixedTermAccount(BankAccountDepositDto bankAccountDepositDto) {
-        return bankAccountService.getFixedTermAccountById(bankAccountDepositDto.getSavingAccountId())
+        return bankAccountService.getFixedTermAccountById(bankAccountDepositDto.getFixedTermAccountId())
                 .flatMap(fixedTermAccountDto -> bankAccountService.updateFixedTermAccountById(fixedTermAccountDto.getId(),
                         fixedTermAccountDto.toBuilder()
                                 .balance(fixedTermAccountDto.getBalance() + bankAccountDepositDto.getAmount())
@@ -134,9 +123,9 @@ public class BankAccountMovementServiceImpl implements IBankAccountMovementServi
     }
 
     private Mono<BankAccountWithdrawalDto> registerWithdrawalForFixedTermAccount(BankAccountWithdrawalDto bankAccountWithdrawalDto) {
-        return bankAccountService.getFixedTermAccountById(bankAccountWithdrawalDto.getSavingAccountId())
+        return bankAccountService.getFixedTermAccountById(bankAccountWithdrawalDto.getFixedTermAccountId())
                 .flatMap(fixedTermAccountDto -> fixedTermAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount() >= 0
-                        ? bankAccountService.updateSavingAccountById(fixedTermAccountDto.getId(),
+                        ? bankAccountService.updateFixedTermAccountById(fixedTermAccountDto.getId(),
                         fixedTermAccountDto.toBuilder()
                                 .balance(fixedTermAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount())
                                 .build())
@@ -148,62 +137,33 @@ public class BankAccountMovementServiceImpl implements IBankAccountMovementServi
                 .map(MovementMapper::toWithdrawalDto);
     }
 
-    private Mono<BankAccountDepositDto> registerDepositForPersonalCheckingAccountId(BankAccountDepositDto bankAccountDepositDto) {
-        return bankAccountService.getPersonalCheckingAccountById(bankAccountDepositDto.getSavingAccountId())
-                .flatMap(personalCheckingAccountDto -> bankAccountService.updateFixedTermAccountById(personalCheckingAccountDto.getId(),
-                        personalCheckingAccountDto.toBuilder()
-                                .balance(personalCheckingAccountDto.getBalance() + bankAccountDepositDto.getAmount())
+    private Mono<BankAccountDepositDto> registerDepositForCheckingAccountId(BankAccountDepositDto bankAccountDepositDto) {
+        return bankAccountService.getCheckingAccountById(bankAccountDepositDto.getCheckingAccountId())
+                .flatMap(checkingAccountDto -> bankAccountService.updateCheckingAccountById(checkingAccountDto.getId(),
+                        checkingAccountDto.toBuilder()
+                                .balance(checkingAccountDto.getBalance() + bankAccountDepositDto.getAmount())
                                 .build()))
-                .flatMap(updatedPersonalCheckingAccountDto -> repo.save(MovementMapper.toModel(bankAccountDepositDto).toBuilder()
+                .flatMap(updatedCheckingAccountDto -> repo.save(MovementMapper.toModel(bankAccountDepositDto).toBuilder()
                         .id(null)
                         .timestamp(LocalDateTime.now())
                         .build()))
                 .map(MovementMapper::toDepositDto);
     }
 
-    private Mono<BankAccountWithdrawalDto> registerWithdrawalForPersonalCheckingAccountId(BankAccountWithdrawalDto bankAccountWithdrawalDto) {
-        return bankAccountService.getPersonalCheckingAccountById(bankAccountWithdrawalDto.getSavingAccountId())
-                .flatMap(personalCheckingAccountDto -> personalCheckingAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount() >= 0
-                        ? bankAccountService.updateSavingAccountById(personalCheckingAccountDto.getId(),
-                        personalCheckingAccountDto.toBuilder()
-                                .balance(personalCheckingAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount())
+    private Mono<BankAccountWithdrawalDto> registerWithdrawalForCheckingAccountId(BankAccountWithdrawalDto bankAccountWithdrawalDto) {
+        return bankAccountService.getCheckingAccountById(bankAccountWithdrawalDto.getCheckingAccountId())
+                .flatMap(checkingAccountDto -> checkingAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount() >= 0
+                        ? bankAccountService.updateSavingAccountById(checkingAccountDto.getId(),
+                        checkingAccountDto.toBuilder()
+                                .balance(checkingAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount())
                                 .build())
                         : Mono.error(new BadRequestException(Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
-                .flatMap(updatedPersonalCheckingAccountDto -> repo.save(MovementMapper.toModel(bankAccountWithdrawalDto).toBuilder()
+                .flatMap(updatedCheckingAccountDto -> repo.save(MovementMapper.toModel(bankAccountWithdrawalDto).toBuilder()
                         .id(null)
                         .timestamp(LocalDateTime.now())
                         .build()))
                 .map(MovementMapper::toWithdrawalDto);
     }
-
-    private Mono<BankAccountDepositDto> registerDepositForBusinessCheckingAccount(BankAccountDepositDto bankAccountDepositDto) {
-        return bankAccountService.getBusinessCheckingAccountById(bankAccountDepositDto.getSavingAccountId())
-                .flatMap(businessCheckingAccountDto -> bankAccountService.updateFixedTermAccountById(businessCheckingAccountDto.getId(),
-                        businessCheckingAccountDto.toBuilder()
-                                .balance(businessCheckingAccountDto.getBalance() + bankAccountDepositDto.getAmount())
-                                .build()))
-                .flatMap(updatedBusinessCheckingAccountDto -> repo.save(MovementMapper.toModel(bankAccountDepositDto).toBuilder()
-                        .id(null)
-                        .timestamp(LocalDateTime.now())
-                        .build()))
-                .map(MovementMapper::toDepositDto);
-    }
-
-    private Mono<BankAccountWithdrawalDto> registerWithdrawalForBusinessCheckingAccount(BankAccountWithdrawalDto bankAccountWithdrawalDto) {
-        return bankAccountService.getBusinessCheckingAccountById(bankAccountWithdrawalDto.getSavingAccountId())
-                .flatMap(businessCheckingAccountDto -> businessCheckingAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount() >= 0
-                        ? bankAccountService.updateSavingAccountById(businessCheckingAccountDto.getId(),
-                        businessCheckingAccountDto.toBuilder()
-                                .balance(businessCheckingAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount())
-                                .build())
-                        : Mono.error(new BadRequestException(Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
-                .flatMap(updatedBusinessCheckingAccountDto -> repo.save(MovementMapper.toModel(bankAccountWithdrawalDto).toBuilder()
-                        .id(null)
-                        .timestamp(LocalDateTime.now())
-                        .build()))
-                .map(MovementMapper::toWithdrawalDto);
-    }
-
 
     @Override
     public Mono<BankAccountMovementDto> updateById(String id, BankAccountMovementDto bankAccountMovementDto) {

@@ -16,12 +16,13 @@ controller:
       register-withdrawal: /withdrawal
       get-by-saving-account-id: /saving/{id}
       get-by-fixed-term-account-id: /fixed-term/{id}
-      get-by-personal-checking-account-id: /personal-checking/{id}
-      get-by-business-checking-account-id: /business-checking/{id}
-  fixed-term-account:
-    base-path: /fixed-term
-  saving-account:
-    base-path: /saving
+      get-by-checking-account-id: /checking/{id}
+  credit-movement:
+    base-path: /credit
+    method:
+      register-payment: /payment
+      register-consumption: /consumption
+      get-by-credit-card-id: /credit-card/{id}
   method:
     getAll:
     getById: /{id}
@@ -36,8 +37,13 @@ bank-account-service:
   method:
     get-saving-account-by-id: /saving/{id}
     get-fixed-term-account-by-id: /fixed-term/{id}
-    get-personal-checking-account-by-id: /checking/personal/{id}
-    get-business-checking-account-by-id: /checking/business/{id}
+    get-checking-account-by-id: /checking/{id}
     update-saving-account-by-id: /saving/{id}
     update-fixed-term-account-by-id: /fixed-term/{id}
     update-checking-account-by-id: /checking/{id}
+
+credit-service:
+  base-url: http://localhost:8082/credits
+  method:
+    get-credit-card-by-id: /credit-card/{id}
+    update-credit-card-by-id: /credit-card/{id}

@@ -20,7 +20,6 @@ public class BankAccountMovement {
     private String movementTypeId;
     private String savingAccountId;
     private String fixedTermAccountId;
-    private String personalCheckingAccountId;
-    private String businessCheckingAccountId;
+    private String checkingAccountId;
 
 }

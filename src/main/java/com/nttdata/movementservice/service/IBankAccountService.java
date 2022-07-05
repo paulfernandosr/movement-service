@@ -9,9 +9,7 @@ public interface IBankAccountService {
 
     Mono<BankAccountDto> getFixedTermAccountById(String id);
 
-    Mono<BankAccountDto> getPersonalCheckingAccountById(String id);
-
-    Mono<BankAccountDto> getBusinessCheckingAccountById(String id);
+    Mono<BankAccountDto> getCheckingAccountById(String id);
 
     Mono<BankAccountDto> updateSavingAccountById(String id, BankAccountDto bankAccountDto);
 

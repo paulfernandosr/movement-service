@@ -12,13 +12,11 @@ public interface IBankAccountMovementService {
 
     Mono<BankAccountMovementDto> getById(String id);
 
-    Flux<BankAccountMovementDto> getBySavingAccountId(String personalSavingAccountId);
+    Flux<BankAccountMovementDto> getBySavingAccountId(String savingAccountId);
 
-    Flux<BankAccountMovementDto> getByFixedTermAccountId(String personalFixedTermAccountId);
+    Flux<BankAccountMovementDto> getByFixedTermAccountId(String fixedTermAccountId);
 
-    Flux<BankAccountMovementDto> getByPersonalCheckingAccountId(String personalCheckingAccountId);
-
-    Flux<BankAccountMovementDto> getByBusinessCheckingAccountId(String businessCheckingAccountId);
+    Flux<BankAccountMovementDto> getByCheckingAccountId(String checkingAccountId);
 
     Mono<BankAccountDepositDto> registerDeposit(BankAccountDepositDto bankAccountDepositDto);
 

@@ -1,9 +1,8 @@
 package com.nttdata.movementservice.util;
 
-import com.nttdata.movementservice.dto.BankAccountDepositDto;
-import com.nttdata.movementservice.dto.BankAccountMovementDto;
-import com.nttdata.movementservice.dto.BankAccountWithdrawalDto;
+import com.nttdata.movementservice.dto.*;
 import com.nttdata.movementservice.model.BankAccountMovement;
+import com.nttdata.movementservice.model.CreditCardMovement;
 
 public class MovementMapper {
 
@@ -18,8 +17,7 @@ public class MovementMapper {
                 .timestamp(movementDto.getTimestamp())
                 .savingAccountId(movementDto.getSavingAccountId())
                 .fixedTermAccountId(movementDto.getFixedTermAccountId())
-                .personalCheckingAccountId(movementDto.getPersonalCheckingAccountId())
-                .businessCheckingAccountId(movementDto.getBusinessCheckingAccountId())
+                .checkingAccountId(movementDto.getCheckingAccountId())
                 .build();
     }
 
@@ -30,8 +28,7 @@ public class MovementMapper {
                 .timestamp(movement.getTimestamp())
                 .savingAccountId(movement.getSavingAccountId())
                 .fixedTermAccountId(movement.getFixedTermAccountId())
-                .personalCheckingAccountId(movement.getPersonalCheckingAccountId())
-                .businessCheckingAccountId(movement.getBusinessCheckingAccountId())
+                .checkingAccountId(movement.getCheckingAccountId())
                 .build();
     }
 
@@ -42,8 +39,7 @@ public class MovementMapper {
                 .timestamp(depositDto.getTimestamp())
                 .savingAccountId(depositDto.getSavingAccountId())
                 .fixedTermAccountId(depositDto.getFixedTermAccountId())
-                .personalCheckingAccountId(depositDto.getPersonalCheckingAccountId())
-                .businessCheckingAccountId(depositDto.getBusinessCheckingAccountId())
+                .checkingAccountId(depositDto.getCheckingAccountId())
                 .build();
     }
 
@@ -54,8 +50,7 @@ public class MovementMapper {
                 .timestamp(withdrawalDto.getTimestamp())
                 .savingAccountId(withdrawalDto.getSavingAccountId())
                 .fixedTermAccountId(withdrawalDto.getFixedTermAccountId())
-                .personalCheckingAccountId(withdrawalDto.getPersonalCheckingAccountId())
-                .businessCheckingAccountId(withdrawalDto.getBusinessCheckingAccountId())
+                .checkingAccountId(withdrawalDto.getCheckingAccountId())
                 .build();
     }
 
@@ -66,8 +61,7 @@ public class MovementMapper {
                 .timestamp(movement.getTimestamp())
                 .savingAccountId(movement.getSavingAccountId())
                 .fixedTermAccountId(movement.getFixedTermAccountId())
-                .personalCheckingAccountId(movement.getPersonalCheckingAccountId())
-                .businessCheckingAccountId(movement.getBusinessCheckingAccountId())
+                .checkingAccountId(movement.getCheckingAccountId())
                 .build();
     }
 
@@ -78,8 +72,61 @@ public class MovementMapper {
                 .timestamp(movement.getTimestamp())
                 .savingAccountId(movement.getSavingAccountId())
                 .fixedTermAccountId(movement.getFixedTermAccountId())
-                .personalCheckingAccountId(movement.getPersonalCheckingAccountId())
-                .businessCheckingAccountId(movement.getBusinessCheckingAccountId())
+                .checkingAccountId(movement.getCheckingAccountId())
+                .build();
+    }
+
+    public static CreditCardMovement toModel(CreditCardMovementDto movementDto) {
+        return CreditCardMovement.builder()
+                .id(movementDto.getId())
+                .amount(movementDto.getAmount())
+                .timestamp(movementDto.getTimestamp())
+                .creditCardId(movementDto.getCreditCardId())
+                .build();
+    }
+
+    public static CreditCardMovementDto toDto(CreditCardMovement movement) {
+        return CreditCardMovementDto.builder()
+                .id(movement.getId())
+                .amount(movement.getAmount())
+                .timestamp(movement.getTimestamp())
+                .creditCardId(movement.getCreditCardId())
+                .build();
+    }
+
+    public static CreditCardMovement toModel(CreditCardPaymentDto paymentDto) {
+        return CreditCardMovement.builder()
+                .id(paymentDto.getId())
+                .amount(paymentDto.getAmount())
+                .timestamp(paymentDto.getTimestamp())
+                .creditCardId(paymentDto.getCreditCardId())
+                .build();
+    }
+
+    public static CreditCardMovement toModel(CreditCardConsumptionDto consumptionDto) {
+        return CreditCardMovement.builder()
+                .id(consumptionDto.getId())
+                .amount(consumptionDto.getAmount())
+                .timestamp(consumptionDto.getTimestamp())
+                .creditCardId(consumptionDto.getCreditCardId())
+                .build();
+    }
+
+    public static CreditCardPaymentDto toPaymentDto(CreditCardMovement movement) {
+        return CreditCardPaymentDto.builder()
+                .id(movement.getId())
+                .amount(movement.getAmount())
+                .timestamp(movement.getTimestamp())
+                .creditCardId(movement.getCreditCardId())
+                .build();
+    }
+
+    public static CreditCardConsumptionDto toConsumptionDto(CreditCardMovement movement) {
+        return CreditCardConsumptionDto.builder()
+                .id(movement.getId())
+                .amount(movement.getAmount())
+                .timestamp(movement.getTimestamp())
+                .creditCardId(movement.getCreditCardId())
                 .build();
     }
 

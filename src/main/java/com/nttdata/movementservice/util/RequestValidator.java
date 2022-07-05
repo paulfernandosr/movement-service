@@ -40,11 +40,10 @@ public class RequestValidator {
                 .build();
     }
 
-    public static boolean isBankAccountId(String savingAccountId, String fixedTermAccountId, String personalCheckingAccountId, String businessCheckingAccountId) {
-        return (savingAccountId != null && fixedTermAccountId == null && personalCheckingAccountId == null && businessCheckingAccountId == null)
-                || (savingAccountId == null && fixedTermAccountId != null && personalCheckingAccountId == null && businessCheckingAccountId == null)
-                || (savingAccountId == null && fixedTermAccountId == null && personalCheckingAccountId != null && businessCheckingAccountId == null)
-                || (savingAccountId == null && fixedTermAccountId == null && personalCheckingAccountId == null && businessCheckingAccountId != null);
+    public static boolean isBankAccountId(String savingAccountId, String fixedTermAccountId, String checkingAccountId) {
+        return (savingAccountId != null && fixedTermAccountId == null && checkingAccountId == null)
+                || (savingAccountId == null && fixedTermAccountId != null && checkingAccountId == null)
+                || (savingAccountId == null && fixedTermAccountId == null && checkingAccountId != null);
     }
 
 }

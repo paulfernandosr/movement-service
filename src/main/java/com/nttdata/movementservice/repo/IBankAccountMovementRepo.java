@@ -6,12 +6,10 @@ import reactor.core.publisher.Flux;
 
 public interface IBankAccountMovementRepo extends ReactiveMongoRepository<BankAccountMovement, String> {
 
-    Flux<BankAccountMovement> findBySavingAccountId(String personalSavingAccountId);
+    Flux<BankAccountMovement> findBySavingAccountId(String savingAccountId);
 
-    Flux<BankAccountMovement> findByFixedTermAccountId(String personalFixedTermAccountId);
+    Flux<BankAccountMovement> findByFixedTermAccountId(String fixedTermAccountId);
 
-    Flux<BankAccountMovement> findByPersonalCheckingAccountId(String personalCheckingAccountId);
-
-    Flux<BankAccountMovement> findByBusinessCheckingAccountId(String businessCheckingAccountId);
+    Flux<BankAccountMovement> findByCheckingAccountId(String checkingAccountId);
 
 }

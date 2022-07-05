@@ -17,8 +17,6 @@ public class CreditCardMovement {
     private String id;
     private Double amount;
     private LocalDateTime timestamp;
-    private String movementTypeId;
-    private String personalCreditCardId;
-    private String businessCreditCardId;
+    private String creditCardId;
 
 }

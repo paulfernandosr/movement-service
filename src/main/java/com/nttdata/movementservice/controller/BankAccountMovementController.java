@@ -32,38 +32,31 @@ public class BankAccountMovementController {
     }
 
     @GetMapping(Constants.GET_BY_ID_METHOD)
-    public Mono<ResponseEntity<BankAccountMovementDto>> getById(@PathVariable(Constants.PATH_ID_VARIABLE) String id) {
+    public Mono<ResponseEntity<BankAccountMovementDto>> getById(@PathVariable(Constants.ID_PATH_VARIABLE) String id) {
         return service.getById(id).map(account -> ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(account));
     }
 
     @GetMapping(Constants.GET_BY_SAVING_ACCOUNT_ID_METHOD)
-    public Mono<ResponseEntity<Flux<BankAccountMovementDto>>> getBySavingAccountId(@PathVariable(Constants.PATH_ID_VARIABLE) String id) {
+    public Mono<ResponseEntity<Flux<BankAccountMovementDto>>> getBySavingAccountId(@PathVariable(Constants.ID_PATH_VARIABLE) String id) {
         return Mono.just(ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(service.getBySavingAccountId(id)));
     }
 
     @GetMapping(Constants.GET_BY_FIXED_TERM_ACCOUNT_ID_METHOD)
-    public Mono<ResponseEntity<Flux<BankAccountMovementDto>>> getByFixedTermAccountId(@PathVariable(Constants.PATH_ID_VARIABLE) String id) {
+    public Mono<ResponseEntity<Flux<BankAccountMovementDto>>> getByFixedTermAccountId(@PathVariable(Constants.ID_PATH_VARIABLE) String id) {
         return Mono.just(ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(service.getByFixedTermAccountId(id)));
     }
 
-    @GetMapping(Constants.GET_BY_PERSONAL_CHECKING_ACCOUNT_ID_METHOD)
-    public Mono<ResponseEntity<Flux<BankAccountMovementDto>>> getByPersonalCheckingAccountId(@PathVariable(Constants.PATH_ID_VARIABLE) String id) {
+    @GetMapping(Constants.GET_BY_CHECKING_ACCOUNT_ID_METHOD)
+    public Mono<ResponseEntity<Flux<BankAccountMovementDto>>> getByCheckingAccountId(@PathVariable(Constants.ID_PATH_VARIABLE) String id) {
         return Mono.just(ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(service.getByPersonalCheckingAccountId(id)));
-    }
-
-    @GetMapping(Constants.GET_BY_BUSINESS_CHECKING_ACCOUNT_ID_METHOD)
-    public Mono<ResponseEntity<Flux<BankAccountMovementDto>>> getByBusinessCheckingAccountId(@PathVariable(Constants.PATH_ID_VARIABLE) String id) {
-        return Mono.just(ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(service.getByBusinessCheckingAccountId(id)));
+                .body(service.getByCheckingAccountId(id)));
     }
 
     @PostMapping(Constants.REGISTER_DEPOSIT_METHOD)

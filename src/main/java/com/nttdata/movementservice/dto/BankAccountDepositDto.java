@@ -25,9 +25,7 @@ public class BankAccountDepositDto {
     private LocalDateTime timestamp;
     private String savingAccountId;
     private String fixedTermAccountId;
-    private String personalCheckingAccountId;
-    private String businessCheckingAccountId;
-
+    private String checkingAccountId;
 
     @AssertTrue(message = Constants.BANK_ACCOUNT_ID_IS_REQUIRED)
     private boolean isSavingAccountId() {
@@ -40,17 +38,12 @@ public class BankAccountDepositDto {
     }
 
     @AssertTrue(message = Constants.BANK_ACCOUNT_ID_IS_REQUIRED)
-    private boolean isPersonalCheckingAccountId() {
-        return isBankAccountId();
-    }
-
-    @AssertTrue(message = Constants.BANK_ACCOUNT_ID_IS_REQUIRED)
-    private boolean isBusinessCheckingAccountId() {
+    private boolean isCheckingAccountId() {
         return isBankAccountId();
     }
 
     private boolean isBankAccountId() {
-        return RequestValidator.isBankAccountId(savingAccountId, fixedTermAccountId, personalCheckingAccountId, businessCheckingAccountId);
+        return RequestValidator.isBankAccountId(savingAccountId, fixedTermAccountId, checkingAccountId);
     }
 
 }

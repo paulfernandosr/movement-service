@@ -19,7 +19,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
     private final PropertiesConfig propertiesConfig;
 
     public BankAccountServiceImpl(WebClient.Builder webClientBuilder, PropertiesConfig propertiesConfig) {
-        this.webClient = webClientBuilder.baseUrl(propertiesConfig.bankAccountsServiceBaseUrl).build();
+        this.webClient = webClientBuilder.baseUrl(propertiesConfig.bankAccountServiceBaseUrl).build();
         this.propertiesConfig = propertiesConfig;
     }
 
@@ -42,17 +42,8 @@ public class BankAccountServiceImpl implements IBankAccountService {
     }
 
     @Override
-    public Mono<BankAccountDto> getPersonalCheckingAccountById(String id) {
-        return webClient.get().uri(propertiesConfig.getPersonalCheckingAccountByIdMethod, id).retrieve()
-                .bodyToMono(BankAccountDto.class)
-                .onErrorResume(WebClientResponseException.class, e ->
-                        Mono.error(new DomainException(e.getStatusCode(), String.format(Constants.ERROR_RESPONSE_IN_SERVICE,
-                                e.getMessage(), JacksonUtil.jsonStringToObject(e.getResponseBodyAsString(), ErrorResponseBodyDto.class).getMessage()))));
-    }
-
-    @Override
-    public Mono<BankAccountDto> getBusinessCheckingAccountById(String id) {
-        return webClient.get().uri(propertiesConfig.getBusinessCheckingAccountByIdMethod, id).retrieve()
+    public Mono<BankAccountDto> getCheckingAccountById(String id) {
+        return webClient.get().uri(propertiesConfig.getCheckingAccountByIdMethod, id).retrieve()
                 .bodyToMono(BankAccountDto.class)
                 .onErrorResume(WebClientResponseException.class, e ->
                         Mono.error(new DomainException(e.getStatusCode(), String.format(Constants.ERROR_RESPONSE_IN_SERVICE,

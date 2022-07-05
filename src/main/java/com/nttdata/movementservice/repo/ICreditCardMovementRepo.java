@@ -6,8 +6,6 @@ import reactor.core.publisher.Flux;
 
 public interface ICreditCardMovementRepo extends ReactiveMongoRepository<CreditCardMovement, String> {
 
-    Flux<CreditCardMovement> findByPersonalCreditCardId(String personalCreditCardId);
-
-    Flux<CreditCardMovement> findByBusinessCreditCardId(String businessCreditCardId);
+    Flux<CreditCardMovement> findByCreditCardId(String creditCardId);
 
 }

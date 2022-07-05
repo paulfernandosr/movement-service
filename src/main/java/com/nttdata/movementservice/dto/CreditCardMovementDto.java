@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class BankAccountMovementDto {
+public class CreditCardMovementDto {
 
     private String id;
 
@@ -19,8 +19,8 @@ public class BankAccountMovementDto {
     private Double amount;
 
     private LocalDateTime timestamp;
-    private String savingAccountId;
-    private String fixedTermAccountId;
-    private String checkingAccountId;
+
+    @NotNull(message = Constants.NOT_NULL)
+    private String creditCardId;
 
 }
