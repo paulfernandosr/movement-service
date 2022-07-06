@@ -2,11 +2,16 @@ server:
   port: 8084
 
 spring:
+  application:
+    name: movement-service
   data:
     mongodb:
       uri: mongodb://localhost:27017/movement
-  webflux:
-    base-path: /movements
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
 
 controller:
   bank-account-movement:
@@ -33,7 +38,7 @@ controller:
     id: id
 
 bank-account-service:
-  base-url: http://localhost:8082/bank-accounts
+  base-url: http://localhost:8099/bank-accounts
   method:
     get-saving-account-by-id: /saving/{id}
     get-fixed-term-account-by-id: /fixed-term/{id}
@@ -43,7 +48,7 @@ bank-account-service:
     update-checking-account-by-id: /checking/{id}
 
 credit-service:
-  base-url: http://localhost:8082/credits
+  base-url: http://localhost:8099/credits
   method:
     get-credit-card-by-id: /credit-card/{id}
     update-credit-card-by-id: /credit-card/{id}
