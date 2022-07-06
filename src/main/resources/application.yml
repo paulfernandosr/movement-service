@@ -15,19 +15,19 @@ eureka:
 
 controller:
   bank-account-movement:
-    base-path: /bank-account
+    base-path: /bank-accounts
     method:
-      register-deposit: /deposit
-      register-withdrawal: /withdrawal
-      get-by-saving-account-id: /saving/{id}
+      register-deposit: /deposits
+      register-withdrawal: /withdrawals
+      get-by-saving-account-id: /savings/{id}
       get-by-fixed-term-account-id: /fixed-term/{id}
       get-by-checking-account-id: /checking/{id}
   credit-movement:
-    base-path: /credit
+    base-path: /credits
     method:
-      register-payment: /payment
+      register-payment: /payments
       register-consumption: /consumption
-      get-by-credit-card-id: /credit-card/{id}
+      get-by-credit-card-id: /credit-cards/{id}
   method:
     getAll:
     getById: /{id}
@@ -40,15 +40,15 @@ controller:
 bank-account-service:
   base-url: http://localhost:8099/bank-accounts
   method:
-    get-saving-account-by-id: /saving/{id}
+    get-saving-account-by-id: /savings/{id}
     get-fixed-term-account-by-id: /fixed-term/{id}
     get-checking-account-by-id: /checking/{id}
-    update-saving-account-by-id: /saving/{id}
+    update-saving-account-by-id: /savings/{id}
     update-fixed-term-account-by-id: /fixed-term/{id}
     update-checking-account-by-id: /checking/{id}
 
 credit-service:
   base-url: http://localhost:8099/credits
   method:
-    get-credit-card-by-id: /credit-card/{id}
-    update-credit-card-by-id: /credit-card/{id}
+    get-credit-card-by-id: /credit-cards/{id}
+    update-credit-card-by-id: /credit-cards/{id}

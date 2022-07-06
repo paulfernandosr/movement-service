@@ -19,7 +19,7 @@ public class BankAccountDepositDto {
     private String id;
 
     @NotNull(message = Constants.NOT_NULL)
-    @Min(value = 0, message = Constants.DEPOSIT_AMOUNT_IS_LESS_THAN_ZERO)
+    @Min(value = 1, message = Constants.DEPOSIT_AMOUNT_IS_LESS_THAN_ZERO)
     private Double amount;
 
     private LocalDateTime timestamp;

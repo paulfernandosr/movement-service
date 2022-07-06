@@ -4,6 +4,7 @@ import com.nttdata.movementservice.dto.BankAccountDepositDto;
 import com.nttdata.movementservice.dto.BankAccountMovementDto;
 import com.nttdata.movementservice.dto.BankAccountWithdrawalDto;
 import com.nttdata.movementservice.exception.BadRequestException;
+import com.nttdata.movementservice.exception.DomainException;
 import com.nttdata.movementservice.exception.MovementNotFoundException;
 import com.nttdata.movementservice.repo.IBankAccountMovementRepo;
 import com.nttdata.movementservice.service.IBankAccountMovementService;
@@ -11,6 +12,7 @@ import com.nttdata.movementservice.service.IBankAccountService;
 import com.nttdata.movementservice.util.Constants;
 import com.nttdata.movementservice.util.MovementMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -101,7 +103,7 @@ public class BankAccountMovementServiceImpl implements IBankAccountMovementServi
                         savingAccountDto.toBuilder()
                                 .balance(savingAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount())
                                 .build())
-                        : Mono.error(new BadRequestException(Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
+                        : Mono.error(new DomainException(HttpStatus.BAD_REQUEST, Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
                 .flatMap(updatedSavingAccountDto -> repo.save(MovementMapper.toModel(bankAccountWithdrawalDto).toBuilder()
                         .id(null)
                         .timestamp(LocalDateTime.now())
@@ -129,7 +131,7 @@ public class BankAccountMovementServiceImpl implements IBankAccountMovementServi
                         fixedTermAccountDto.toBuilder()
                                 .balance(fixedTermAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount())
                                 .build())
-                        : Mono.error(new BadRequestException(Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
+                        : Mono.error(new DomainException(HttpStatus.BAD_REQUEST, Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
                 .flatMap(updatedFixedTermAccountDto -> repo.save(MovementMapper.toModel(bankAccountWithdrawalDto).toBuilder()
                         .id(null)
                         .timestamp(LocalDateTime.now())
@@ -157,7 +159,7 @@ public class BankAccountMovementServiceImpl implements IBankAccountMovementServi
                         checkingAccountDto.toBuilder()
                                 .balance(checkingAccountDto.getBalance() + bankAccountWithdrawalDto.getAmount())
                                 .build())
-                        : Mono.error(new BadRequestException(Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
+                        : Mono.error(new DomainException(HttpStatus.BAD_REQUEST, Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
                 .flatMap(updatedCheckingAccountDto -> repo.save(MovementMapper.toModel(bankAccountWithdrawalDto).toBuilder()
                         .id(null)
                         .timestamp(LocalDateTime.now())
@@ -167,12 +169,22 @@ public class BankAccountMovementServiceImpl implements IBankAccountMovementServi
 
     @Override
     public Mono<BankAccountMovementDto> updateById(String id, BankAccountMovementDto bankAccountMovementDto) {
-        return null;
+        Mono<BankAccountMovementDto> movementDtoReqMono = Mono.just(bankAccountMovementDto);
+        Mono<BankAccountMovementDto> movementDtoDbMono = getById(id);
+        return movementDtoReqMono.zipWith(movementDtoDbMono, (movementDtoReq, movementDtoDb) ->
+                        MovementMapper.toModel(movementDtoDb.toBuilder()
+                                .amount(movementDtoReq.getAmount())
+                                .timestamp(movementDtoReq.getTimestamp())
+                                .savingAccountId(movementDtoReq.getSavingAccountId())
+                                .fixedTermAccountId(movementDtoReq.getFixedTermAccountId())
+                                .checkingAccountId(movementDtoReq.getCheckingAccountId())
+                                .build()))
+                .flatMap(movement -> repo.save(movement).map(MovementMapper::toDto));
     }
 
     @Override
     public Mono<Void> deleteById(String id) {
-        return null;
+        return getById(id).flatMap(movementDto -> repo.deleteById(id));
     }
 
 }

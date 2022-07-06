@@ -17,7 +17,7 @@ public class CreditCardPaymentDto {
     private String id;
 
     @NotNull(message = Constants.NOT_NULL)
-    @Min(value = 0, message = Constants.PAYMENT_AMOUNT_IS_LESS_THAN_ZERO)
+    @Min(value = 1, message = Constants.PAYMENT_AMOUNT_IS_LESS_THAN_ZERO)
     private Double amount;
 
     private LocalDateTime timestamp;

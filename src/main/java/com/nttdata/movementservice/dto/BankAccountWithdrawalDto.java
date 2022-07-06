@@ -19,7 +19,7 @@ public class BankAccountWithdrawalDto {
     private String id;
 
     @NotNull(message = Constants.NOT_NULL)
-    @Max(value = 0, message = Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_ZERO)
+    @Max(value = -1, message = Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_ZERO)
     private Double amount;
 
     private LocalDateTime timestamp;

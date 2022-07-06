@@ -3,7 +3,7 @@ package com.nttdata.movementservice.service.impl;
 import com.nttdata.movementservice.dto.CreditCardConsumptionDto;
 import com.nttdata.movementservice.dto.CreditCardMovementDto;
 import com.nttdata.movementservice.dto.CreditCardPaymentDto;
-import com.nttdata.movementservice.exception.BadRequestException;
+import com.nttdata.movementservice.exception.DomainException;
 import com.nttdata.movementservice.exception.MovementNotFoundException;
 import com.nttdata.movementservice.repo.ICreditCardMovementRepo;
 import com.nttdata.movementservice.service.ICreditCardMovementService;
@@ -11,6 +11,7 @@ import com.nttdata.movementservice.service.ICreditService;
 import com.nttdata.movementservice.util.Constants;
 import com.nttdata.movementservice.util.MovementMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,12 +45,12 @@ public class CreditCardMovementServiceImpl implements ICreditCardMovementService
     @Override
     public Mono<CreditCardPaymentDto> registerPayment(CreditCardPaymentDto creditCardPaymentDto) {
         return creditService.getCreditCardById(creditCardPaymentDto.getCreditCardId())
-                .flatMap(creditCardDto -> creditCardPaymentDto.getAmount() <= creditCardDto.getConsumed()
+                .flatMap(creditCardDto -> creditCardDto.getBalance() + creditCardPaymentDto.getAmount() <= creditCardDto.getCreditLine()
                         ? creditService.updateCreditCardById(creditCardDto.getId(),
                         creditCardDto.toBuilder()
-                                .consumed(creditCardDto.getConsumed() - creditCardPaymentDto.getAmount())
+                                .balance(creditCardDto.getBalance() + creditCardPaymentDto.getAmount())
                                 .build())
-                        : Mono.error(new BadRequestException(Constants.PAYMENT_AMOUNT_IS_GREATER_THAN_CONSUMED)))
+                        : Mono.error(new DomainException(HttpStatus.BAD_REQUEST, Constants.BALANCE_IS_GREATER_THAN_CREDIT_LINE)))
                 .flatMap(updatedCreditCardDto -> repo.save(MovementMapper.toModel(creditCardPaymentDto).toBuilder()
                         .id(null)
                         .timestamp(LocalDateTime.now())
@@ -60,12 +61,12 @@ public class CreditCardMovementServiceImpl implements ICreditCardMovementService
     @Override
     public Mono<CreditCardConsumptionDto> registerConsumption(CreditCardConsumptionDto creditCardConsumptionDto) {
         return creditService.getCreditCardById(creditCardConsumptionDto.getCreditCardId())
-                .flatMap(creditCardDto -> creditCardDto.getConsumed() - creditCardConsumptionDto.getAmount() <= creditCardDto.getCreditLine()
+                .flatMap(creditCardDto -> creditCardDto.getBalance() + creditCardConsumptionDto.getAmount() >= 0
                         ? creditService.updateCreditCardById(creditCardDto.getId(),
                         creditCardDto.toBuilder()
-                                .consumed(creditCardDto.getConsumed() - creditCardConsumptionDto.getAmount())
+                                .balance(creditCardDto.getBalance() + creditCardConsumptionDto.getAmount())
                                 .build())
-                        : Mono.error(new BadRequestException(Constants.TOTAL_CONSUMPTION_AMOUNT_IS_GREATER_THAN_CREDIT_LINE)))
+                        : Mono.error(new DomainException(HttpStatus.BAD_REQUEST, Constants.CONSUMPTION_AMOUNT_IS_GREATER_THAN_BALANCE)))
                 .flatMap(updatedCreditCardDto -> repo.save(MovementMapper.toModel(creditCardConsumptionDto).toBuilder()
                         .id(null)
                         .timestamp(LocalDateTime.now())
@@ -75,12 +76,20 @@ public class CreditCardMovementServiceImpl implements ICreditCardMovementService
 
     @Override
     public Mono<CreditCardMovementDto> updateById(String id, CreditCardMovementDto creditCardMovementDto) {
-        return null;
+        Mono<CreditCardMovementDto> movementDtoReqMono = Mono.just(creditCardMovementDto);
+        Mono<CreditCardMovementDto> movementDtoDbMono = getById(id);
+        return movementDtoReqMono.zipWith(movementDtoDbMono, (movementDtoReq, movementDtoDb) ->
+                        MovementMapper.toModel(movementDtoDb.toBuilder()
+                                .amount(movementDtoReq.getAmount())
+                                .timestamp(movementDtoReq.getTimestamp())
+                                .creditCardId(movementDtoReq.getCreditCardId())
+                                .build()))
+                .flatMap(movement -> repo.save(movement).map(MovementMapper::toDto));
     }
 
     @Override
     public Mono<Void> deleteById(String id) {
-        return null;
+        return getById(id).flatMap(movementDto -> repo.deleteById(id));
     }
 
 }

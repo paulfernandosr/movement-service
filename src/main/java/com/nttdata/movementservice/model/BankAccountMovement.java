@@ -17,7 +17,6 @@ public class BankAccountMovement {
     private String id;
     private Double amount;
     private LocalDateTime timestamp;
-    private String movementTypeId;
     private String savingAccountId;
     private String fixedTermAccountId;
     private String checkingAccountId;

@@ -17,7 +17,7 @@ public class CreditCardConsumptionDto {
     private String id;
 
     @NotNull(message = Constants.NOT_NULL)
-    @Max(value = 0, message = Constants.CONSUMPTION_AMOUNT_IS_GREATER_THAN_ZERO)
+    @Max(value = -1, message = Constants.CONSUMPTION_AMOUNT_IS_GREATER_THAN_ZERO)
     private Double amount;
 
     private LocalDateTime timestamp;

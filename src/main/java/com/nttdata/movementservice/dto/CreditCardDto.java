@@ -13,7 +13,7 @@ public class CreditCardDto {
     private final String cardNumber;
     private final String cvv;
     private final LocalDate expirationDate;
-    private final Double consumed;
+    private final Double balance;
     private final Double creditLine;
     private final String personalCustomerId;
     private final String businessCustomerId;

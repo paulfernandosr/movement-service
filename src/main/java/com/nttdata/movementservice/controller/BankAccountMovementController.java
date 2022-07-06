@@ -7,6 +7,7 @@ import com.nttdata.movementservice.service.IBankAccountMovementService;
 import com.nttdata.movementservice.util.Constants;
 import com.nttdata.movementservice.util.RequestValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -75,6 +76,20 @@ public class BankAccountMovementController {
                         .map(registeredAccount -> ResponseEntity.created(URI.create(request.getURI() + Constants.SLASH + registeredAccount.getId()))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(registeredAccount)));
+    }
+
+    @PutMapping(Constants.UPDATE_BY_ID_METHOD)
+    public Mono<ResponseEntity<BankAccountMovementDto>> updateById(@PathVariable(Constants.ID_PATH_VARIABLE) String id, @RequestBody BankAccountMovementDto movement) {
+        return validator.validate(movement)
+                .flatMap(validatedMovement -> service.updateById(id, validatedMovement)
+                        .map(updatedMovement -> ResponseEntity.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(updatedMovement)));
+    }
+
+    @DeleteMapping(Constants.DELETE_BY_ID_METHOD)
+    public Mono<ResponseEntity<Void>> deleteById(@PathVariable(Constants.ID_PATH_VARIABLE) String id) {
+        return service.deleteById(id).thenReturn(new ResponseEntity<>(HttpStatus.OK));
     }
 
 }

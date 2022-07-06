@@ -5,6 +5,7 @@ import com.nttdata.movementservice.service.ICreditCardMovementService;
 import com.nttdata.movementservice.util.Constants;
 import com.nttdata.movementservice.util.RequestValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -59,6 +60,20 @@ public class CreditMovementController {
                         .map(registeredMovement -> ResponseEntity.created(URI.create(request.getURI() + Constants.SLASH + registeredMovement.getId()))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(registeredMovement)));
+    }
+
+    @PutMapping(Constants.UPDATE_BY_ID_METHOD)
+    public Mono<ResponseEntity<CreditCardMovementDto>> updateById(@PathVariable(Constants.ID_PATH_VARIABLE) String id, @RequestBody CreditCardMovementDto movement) {
+        return validator.validate(movement)
+                .flatMap(validatedMovement -> service.updateById(id, validatedMovement)
+                        .map(updatedMovement -> ResponseEntity.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(updatedMovement)));
+    }
+
+    @DeleteMapping(Constants.DELETE_BY_ID_METHOD)
+    public Mono<ResponseEntity<Void>> deleteById(@PathVariable(Constants.ID_PATH_VARIABLE) String id) {
+        return service.deleteById(id).thenReturn(new ResponseEntity<>(HttpStatus.OK));
     }
 
 }

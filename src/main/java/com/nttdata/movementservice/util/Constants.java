@@ -29,8 +29,8 @@ public class Constants {
     public static final String MOVEMENT_NOT_FOUND = "Movement not found with %s: %s";
     public static final String WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE = "Withdrawal amount is greater than balance";
 
-    public static final String PAYMENT_AMOUNT_IS_GREATER_THAN_CONSUMED = "Payment amount is greater than the amount consumed";
-    public static final String TOTAL_CONSUMPTION_AMOUNT_IS_GREATER_THAN_CREDIT_LINE = "Total amount consumed is greater than the credit line";
+    public static final String BALANCE_IS_GREATER_THAN_CREDIT_LINE = "Balance is greater than the credit line";
+    public static final String CONSUMPTION_AMOUNT_IS_GREATER_THAN_BALANCE = "Consumption amount is greater than the balance";
 
     public static final String DEPOSIT_AMOUNT_IS_LESS_THAN_ZERO = "Deposit amount is less than 0";
     public static final String WITHDRAWAL_AMOUNT_IS_GREATER_THAN_ZERO = "Withdrawal amount is greater than 0";
