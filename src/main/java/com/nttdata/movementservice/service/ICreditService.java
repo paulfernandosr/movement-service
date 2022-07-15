@@ -1,12 +1,12 @@
 package com.nttdata.movementservice.service;
 
-import com.nttdata.movementservice.dto.CreditCardDto;
+import com.nttdata.movementservice.dto.CreditDto;
 import reactor.core.publisher.Mono;
 
 public interface ICreditService {
 
-    Mono<CreditCardDto> getCreditCardById(String id);
+    Mono<CreditDto> getById(String id);
 
-    Mono<CreditCardDto> updateCreditCardById(String id, CreditCardDto creditCardDto);
+    Mono<CreditDto> updateById(String id, CreditDto creditDto);
 
 }

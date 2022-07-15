@@ -11,7 +11,11 @@ public class BankAccountDto {
     private final String accountNumber;
     private final String cci;
     private final Double balance;
-    private final String personalCustomerId;
-    private final String businessCustomerId;
+    private final String type;
+    private final String customerId;
+    private final String maintenanceFee;
+    private final Integer monthlyMovementLimit;
+    private final Double monthlyMinimumBalance;
+    private final Integer transactionLimit;
 
 }

@@ -7,15 +7,20 @@ import java.time.LocalDate;
 
 @Getter
 @Builder(toBuilder = true)
-public class CreditCardDto {
+public class CreditDto {
 
     private final String id;
     private final String cardNumber;
     private final String cvv;
-    private final LocalDate expirationDate;
     private final Double balance;
     private final Double creditLine;
-    private final String personalCustomerId;
-    private final String businessCustomerId;
+    private final LocalDate expirationDate;
+
+    private final Double amountToPay;
+    private final Double amountPaid;
+    private final LocalDate paymentDate;
+
+    private final String type;
+    private final String customerId;
 
 }
