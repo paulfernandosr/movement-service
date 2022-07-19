@@ -60,40 +60,38 @@ public class MovementServiceImpl implements IMovementService {
 
     @Override
     public Mono<MovementDto> registerDeposit(TransactionBankAccountDto transactionBankAccountDto) {
-        return Mono.zip(bankAccountService.getById(transactionBankAccountDto.getBankAccountId()),
+        return Mono.zip(bankAccountService.getBankAccountById(transactionBankAccountDto.getBankAccountId()),
                         repo.findByTypeStartsWithAndTargetBankAccountId(Constants.TRANSACTION, transactionBankAccountDto.getBankAccountId()).collectList())
                 .flatMap(tuple2 -> validateDepositFee(tuple2, transactionBankAccountDto.getAmount()));
-
-
     }
 
     @Override
     public Mono<MovementDto> registerWithdrawal(TransactionBankAccountDto transactionBankAccountDto) {
-        return Mono.zip(bankAccountService.getById(transactionBankAccountDto.getBankAccountId()),
+        return Mono.zip(bankAccountService.getBankAccountById(transactionBankAccountDto.getBankAccountId()),
                         repo.findByTypeStartsWithAndTargetBankAccountId(Constants.TRANSACTION, transactionBankAccountDto.getBankAccountId()).collectList())
                 .flatMap(tuple2 -> validateWithdrawalFee(tuple2, transactionBankAccountDto.getAmount()));
     }
 
     @Override
     public Mono<MovementDto> registerTransferToOwnBankAccount(TransferBankAccountDto transferBankAccountDto) {
-        return Mono.zip(bankAccountService.getById(transferBankAccountDto.getSourceBankAccountId()),
-                        bankAccountService.getById(transferBankAccountDto.getTargetBankAccountId()))
+        return Mono.zip(bankAccountService.getBankAccountById(transferBankAccountDto.getSourceBankAccountId()),
+                        bankAccountService.getBankAccountById(transferBankAccountDto.getTargetBankAccountId()))
                 .map(bankAccounts -> validateOwnTransfer(bankAccounts.getT1(), bankAccounts.getT2(), transferBankAccountDto.getAmount()))
                 .flatMap(mergeBankAccounts -> Mono.zip(
-                        bankAccountService.updateById(mergeBankAccounts.getBankAccount1().getId(), mergeBankAccounts.getBankAccount1()),
-                        bankAccountService.updateById(mergeBankAccounts.getBankAccount2().getId(), mergeBankAccounts.getBankAccount2()),
+                        bankAccountService.updateBankAccountById(mergeBankAccounts.getBankAccount1().getId(), mergeBankAccounts.getBankAccount1()),
+                        bankAccountService.updateBankAccountById(mergeBankAccounts.getBankAccount2().getId(), mergeBankAccounts.getBankAccount2()),
                         repo.save(MovementMapper.toMovement(transferBankAccountDto).toBuilder().timestamp(LocalDateTime.now()).type(Constants.TRANSFER_TO_OWN_BANK_ACCOUNTS).build())))
                 .map(transaction -> MovementMapper.toMovementDto(transaction.getT3()));
     }
 
     @Override
     public Mono<MovementDto> registerTransferToThirdPartiesBankAccount(TransferBankAccountDto transferBankAccountDto) {
-        return Mono.zip(bankAccountService.getById(transferBankAccountDto.getSourceBankAccountId()),
-                        bankAccountService.getById(transferBankAccountDto.getTargetBankAccountId()))
+        return Mono.zip(bankAccountService.getBankAccountById(transferBankAccountDto.getSourceBankAccountId()),
+                        bankAccountService.getBankAccountById(transferBankAccountDto.getTargetBankAccountId()))
                 .map(bankAccounts -> validateTransferToThirdParties(bankAccounts.getT1(), bankAccounts.getT2(), transferBankAccountDto.getAmount()))
                 .flatMap(mergeBankAccounts -> Mono.zip(
-                        bankAccountService.updateById(mergeBankAccounts.getBankAccount1().getId(), mergeBankAccounts.getBankAccount1()),
-                        bankAccountService.updateById(mergeBankAccounts.getBankAccount2().getId(), mergeBankAccounts.getBankAccount2()),
+                        bankAccountService.updateBankAccountById(mergeBankAccounts.getBankAccount1().getId(), mergeBankAccounts.getBankAccount1()),
+                        bankAccountService.updateBankAccountById(mergeBankAccounts.getBankAccount2().getId(), mergeBankAccounts.getBankAccount2()),
                         repo.save(MovementMapper.toMovement(transferBankAccountDto).toBuilder()
                                 .timestamp(LocalDateTime.now())
                                 .type(Constants.TRANSFER_TO_THIRD_PARTIES_BANK_ACCOUNTS)
@@ -147,6 +145,53 @@ public class MovementServiceImpl implements IMovementService {
     }
 
     @Override
+    public Mono<MovementDto> registerDebitCardPayment(MovementDebitCardDto movementDebitCardDto) {
+        return registerDebitCardMovement(movementDebitCardDto, Constants.DEBIT_CARD_PAYMENT);
+    }
+
+    @Override
+    public Mono<MovementDto> registerDebitCardWithdrawal(MovementDebitCardDto movementDebitCardDto) {
+        return registerDebitCardMovement(movementDebitCardDto, Constants.DEBIT_CARD_WITHDRAWAL);
+    }
+
+    private Mono<MovementDto> registerWithMainAccount(BankAccountDto mainAccountId, Double paymentAmount, String type) {
+        return Mono.just(mainAccountId.toBuilder().balance(mainAccountId.getBalance() - paymentAmount).build())
+                .flatMap(modifiedAccount -> Mono.zip(bankAccountService.updateBankAccountById(modifiedAccount.getId(), modifiedAccount),
+                        repo.save(Movement.builder()
+                                .amount(paymentAmount)
+                                .targetBankAccountId(modifiedAccount.getId())
+                                .timestamp(LocalDateTime.now())
+                                .type(type)
+                                .build())))
+                .map(tuple -> MovementMapper.toMovementDto(tuple.getT2()));
+    }
+
+    private Mono<MovementDto> registerWithSecondaryAccount(List<String> secondaryAccountIds, Double paymentAmount, String type) {
+        return Flux.fromIterable(secondaryAccountIds)
+                .flatMap(bankAccountService::getBankAccountById)
+                .filter(secondaryAccount -> secondaryAccount.getBalance() >= paymentAmount)
+                .switchIfEmpty(Mono.error(new DomainException(HttpStatus.BAD_REQUEST, "Saldo insuficiente en las cuentas asociadas")))
+                .next()
+                .map(account -> account.toBuilder().balance(account.getBalance() - paymentAmount).build())
+                .flatMap(modifiedAccount -> Mono.zip(bankAccountService.updateBankAccountById(modifiedAccount.getId(), modifiedAccount),
+                        repo.save(Movement.builder()
+                                .amount(paymentAmount)
+                                .targetBankAccountId(modifiedAccount.getId())
+                                .timestamp(LocalDateTime.now())
+                                .type(type)
+                                .build())))
+                .map(tuple -> MovementMapper.toMovementDto(tuple.getT2()));
+    }
+
+    private Mono<MovementDto> registerDebitCardMovement(MovementDebitCardDto movementDebitCardDto, String type) {
+        return bankAccountService.getDebitCardById(movementDebitCardDto.getDebitCardId())
+                .flatMap(debitCard -> bankAccountService.getBankAccountById(debitCard.getMainAccountId())
+                        .flatMap(mainAccount -> mainAccount.getBalance() >= movementDebitCardDto.getAmount()
+                                ? this.registerWithMainAccount(mainAccount, movementDebitCardDto.getAmount(), type)
+                                : this.registerWithSecondaryAccount(debitCard.getSecondaryAccountIds(), movementDebitCardDto.getAmount(), type)));
+    }
+
+    @Override
     public Mono<MovementDto> updateById(String id, MovementDto movementDto) {
         return null;
     }
@@ -178,7 +223,7 @@ public class MovementServiceImpl implements IMovementService {
     private Mono<MovementDto> registerDepositWithoutFee(BankAccountDto bankAccountDto, Double depositAmount) {
         return Mono.just(bankAccountDto)
                 .map(accountDto -> accountDto.toBuilder().balance(accountDto.getBalance() + depositAmount).build())
-                .flatMap(accountDto -> bankAccountService.updateById(accountDto.getId(), accountDto))
+                .flatMap(accountDto -> bankAccountService.updateBankAccountById(accountDto.getId(), accountDto))
                 .map(accountDto -> Movement.builder().targetBankAccountId(accountDto.getId()).amount(depositAmount).timestamp(LocalDateTime.now()).type(Constants.DEPOSIT_TRANSACTION).build())
                 .flatMap(repo::save)
                 .map(MovementMapper::toMovementDto);
@@ -189,7 +234,7 @@ public class MovementServiceImpl implements IMovementService {
                 .filter(accountDto -> depositAmount > Constants.FEE)
                 .switchIfEmpty(Mono.error(new DomainException(HttpStatus.BAD_REQUEST, Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
                 .map(accountDto -> accountDto.toBuilder().balance(accountDto.getBalance() + depositAmount - Constants.FEE).build())
-                .flatMap(accountDto -> bankAccountService.updateById(accountDto.getId(), accountDto))
+                .flatMap(accountDto -> bankAccountService.updateBankAccountById(accountDto.getId(), accountDto))
                 .map(accountDto -> Movement.builder().targetBankAccountId(accountDto.getId()).amount(depositAmount).timestamp(LocalDateTime.now()).type(Constants.DEPOSIT_TRANSACTION).build())
                 .flatMap(movement -> repo.save(movement).flatMap(deposit -> registerFeeFromTransaction(deposit).map(fee -> MovementMapper.toMovementDto(deposit))));
     }
@@ -208,7 +253,7 @@ public class MovementServiceImpl implements IMovementService {
                 .filter(accountDto -> accountDto.getBalance() - withdrawalAmount >= 0)
                 .switchIfEmpty(Mono.error(new DomainException(HttpStatus.BAD_REQUEST, Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
                 .map(accountDto -> accountDto.toBuilder().balance(accountDto.getBalance() - withdrawalAmount).build())
-                .flatMap(accountDto -> bankAccountService.updateById(accountDto.getId(), accountDto))
+                .flatMap(accountDto -> bankAccountService.updateBankAccountById(accountDto.getId(), accountDto))
                 .map(accountDto -> Movement.builder().targetBankAccountId(accountDto.getId()).amount(withdrawalAmount).timestamp(LocalDateTime.now()).type(Constants.WITHDRAWAL_TRANSACTION).build())
                 .flatMap(repo::save)
                 .map(MovementMapper::toMovementDto);
@@ -219,7 +264,7 @@ public class MovementServiceImpl implements IMovementService {
                 .filter(accountDto -> accountDto.getBalance() >= withdrawalAmount + Constants.FEE)
                 .switchIfEmpty(Mono.error(new DomainException(HttpStatus.BAD_REQUEST, Constants.WITHDRAWAL_AMOUNT_IS_GREATER_THAN_BALANCE)))
                 .map(accountDto -> accountDto.toBuilder().balance(accountDto.getBalance() - withdrawalAmount - Constants.FEE).build())
-                .flatMap(accountDto -> bankAccountService.updateById(accountDto.getId(), accountDto))
+                .flatMap(accountDto -> bankAccountService.updateBankAccountById(accountDto.getId(), accountDto))
                 .map(accountDto -> Movement.builder().targetBankAccountId(accountDto.getId()).amount(withdrawalAmount).timestamp(LocalDateTime.now()).type(Constants.WITHDRAWAL_TRANSACTION).build())
                 .flatMap(movement -> repo.save(movement).flatMap(withdrawal -> registerFeeFromTransaction(withdrawal).map(fee -> MovementMapper.toMovementDto(withdrawal))));
     }

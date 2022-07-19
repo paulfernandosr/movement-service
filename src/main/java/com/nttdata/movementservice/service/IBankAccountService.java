@@ -1,15 +1,18 @@
 package com.nttdata.movementservice.service;
 
 import com.nttdata.movementservice.dto.BankAccountDto;
+import com.nttdata.movementservice.dto.DebitCardDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface IBankAccountService {
 
-    Mono<BankAccountDto> getById(String id);
+    Mono<BankAccountDto> getBankAccountById(String id);
 
-    Flux<BankAccountDto> getByCustomerId(String customerId);
+    Mono<DebitCardDto> getDebitCardById(String id);
 
-    Mono<BankAccountDto> updateById(String id, BankAccountDto bankAccountDto);
+    Flux<BankAccountDto> getBankAccountByCustomerId(String customerId);
+
+    Mono<BankAccountDto> updateBankAccountById(String id, BankAccountDto bankAccountDto);
 
 }

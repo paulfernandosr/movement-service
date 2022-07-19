@@ -1,10 +1,7 @@
 package com.nttdata.movementservice.controller;
 
 import com.nttdata.movementservice.dto.MovementDto;
-import com.nttdata.movementservice.dto.request.FeesBankAccountDto;
-import com.nttdata.movementservice.dto.request.MovementCreditDto;
-import com.nttdata.movementservice.dto.request.TransactionBankAccountDto;
-import com.nttdata.movementservice.dto.request.TransferBankAccountDto;
+import com.nttdata.movementservice.dto.request.*;
 import com.nttdata.movementservice.service.IMovementService;
 import com.nttdata.movementservice.util.Constants;
 import com.nttdata.movementservice.util.RequestValidator;
@@ -75,6 +72,24 @@ public class MovementController {
     public Mono<ResponseEntity<MovementDto>> registerWithdrawal(@RequestBody TransactionBankAccountDto movement, final ServerHttpRequest request) {
         return validator.validate(movement)
                 .flatMap(validatedMovement -> service.registerWithdrawal(validatedMovement)
+                        .map(registeredMovement -> ResponseEntity.created(URI.create(request.getURI() + Constants.SLASH + registeredMovement.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(registeredMovement)));
+    }
+
+    @PostMapping(Constants.REGISTER_DEBIT_CARD_PAYMENT_METHOD)
+    public Mono<ResponseEntity<MovementDto>> registerDebitCardPayment(@RequestBody MovementDebitCardDto movement, final ServerHttpRequest request) {
+        return validator.validate(movement)
+                .flatMap(validatedMovement -> service.registerDebitCardPayment(validatedMovement)
+                        .map(registeredMovement -> ResponseEntity.created(URI.create(request.getURI() + Constants.SLASH + registeredMovement.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(registeredMovement)));
+    }
+
+    @PostMapping(Constants.REGISTER_DEBIT_CARD_WITHDRAWAL_METHOD)
+    public Mono<ResponseEntity<MovementDto>> registerDebitCardWithdrawal(@RequestBody MovementDebitCardDto movement, final ServerHttpRequest request) {
+        return validator.validate(movement)
+                .flatMap(validatedMovement -> service.registerDebitCardWithdrawal(validatedMovement)
                         .map(registeredMovement -> ResponseEntity.created(URI.create(request.getURI() + Constants.SLASH + registeredMovement.getId()))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(registeredMovement)));

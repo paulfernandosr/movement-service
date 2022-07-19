@@ -13,6 +13,9 @@ public class PropertiesConfig {
     @Value(Constants.GET_BANK_ACCOUNT_BY_ID_METHOD)
     public String getBankAccountByIdMethod;
 
+    @Value(Constants.GET_DEBIT_CARD_BY_ID_METHOD)
+    public String getDebitCardByIdMethod;
+
     @Value(Constants.GET_BANK_ACCOUNTS_BY_CUSTOMER_ID_METHOD)
     public String getBankAccountsByCustomerIdMethod;
 

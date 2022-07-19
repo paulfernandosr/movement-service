@@ -45,8 +45,6 @@ public class Constants {
 
     // Collections
     public static final String MOVEMENTS_COLLECTION = "movements";
-    public static final String BANK_ACCOUNT_MOVEMENTS_COLLECTION = "bankAccountMovements";
-    public static final String CREDIT_CARD_MOVEMENTS_COLLECTION = "creditCardMovements";
 
     // Controller paths
     public static final String MOVEMENT_CONTROLLER = "/movements";
@@ -55,7 +53,7 @@ public class Constants {
     public static final String GET_ALL_METHOD = "/all";
     public static final String GET_BY_ID_METHOD = "/{" + ID + "}";
     public static final String GET_BY_CREDIT_ID_METHOD = "/credits/{creditId}";
-    public static final String GET_BY_BANK_ACCOUNT_ID_METHOD = "/bankAccounts/{bankAccountId}";
+    public static final String GET_BY_BANK_ACCOUNT_ID_METHOD = "/bank-accounts/{bankAccountId}";
     public static final String GET_BANK_ACCOUNT_FEES_METHOD = "/bank-account-fees";
     public static final String REGISTER_DEPOSIT_METHOD = "/deposits";
     public static final String REGISTER_WITHDRAWAL_METHOD = "/withdrawals";
@@ -64,6 +62,8 @@ public class Constants {
     public static final String REGISTER_CREDIT_PAYMENT = "/credit-payments";
     public static final String REGISTER_CREDIT_CARD_PAYMENT = "/credit-card-payments";
     public static final String REGISTER_CREDIT_CARD_CONSUMPTION = "/credit-card-consumptions";
+    public static final String REGISTER_DEBIT_CARD_PAYMENT_METHOD = "/debit-card-payments";
+    public static final String REGISTER_DEBIT_CARD_WITHDRAWAL_METHOD = "/debit-card-withdrawals";
     public static final String UPDATE_BY_ID_METHOD = "/{" + ID + "}";
     public static final String DELETE_BY_ID_METHOD = "/{" + ID + "}";
 
@@ -72,6 +72,7 @@ public class Constants {
     public static final String GET_BANK_ACCOUNT_BY_ID_METHOD = "${bankAccountService.method.getBankAccountById}";
     public static final String GET_BANK_ACCOUNTS_BY_CUSTOMER_ID_METHOD = "${bankAccountService.method.getBankAccountsByCustomerId}";
     public static final String UPDATE_BANK_ACCOUNT_BY_ID_METHOD = "${bankAccountService.method.updateBankAccountById}";
+    public static final String GET_DEBIT_CARD_BY_ID_METHOD = "${bankAccountService.method.getDebitCardById}";
 
     // Credit service
     public static final String CREDIT_SERVICE_BASE_URL = "${creditService.baseUrl}";
@@ -79,19 +80,21 @@ public class Constants {
     public static final String UPDATE_CREDIT_BY_ID_METHOD = "${creditService.method.updateCreditById}";
 
     // Types
-    public static final String DEPOSIT_TRANSACTION = "TRANSACTION.DEPOSIT";
-    public static final String WITHDRAWAL_TRANSACTION = "TRANSACTION.WITHDRAWAL";
-    public static final String TRANSFER_TO_OWN_BANK_ACCOUNTS = "TRANSFER.BANK_ACCOUNTS.OWN";
-    public static final String TRANSFER_TO_THIRD_PARTIES_BANK_ACCOUNTS = "TRANSFER.BANK_ACCOUNTS.THIRD_PARTIES";
-    public static final String CREDIT_PAYMENT = "PAYMENT.CREDIT";
-    public static final String CREDIT_CARD_PAYMENT = "PAYMENT.CREDIT_CARD";
-    public static final String CREDIT_CARD_CONSUMPTION = "CONSUMPTION.CREDIT_CARD";
+    public static final String DEPOSIT_TRANSACTION = "MOVEMENT.TRANSACTION.DEPOSIT";
+    public static final String WITHDRAWAL_TRANSACTION = "MOVEMENT.TRANSACTION.WITHDRAWAL";
+    public static final String TRANSFER_TO_OWN_BANK_ACCOUNTS = "MOVEMENT.TRANSFER.BANK_ACCOUNTS.OWN";
+    public static final String TRANSFER_TO_THIRD_PARTIES_BANK_ACCOUNTS = "MOVEMENT.TRANSFER.BANK_ACCOUNTS.THIRD_PARTIES";
+    public static final String CREDIT_PAYMENT = "MOVEMENT.PAYMENT.CREDIT";
+    public static final String CREDIT_CARD_PAYMENT = "MOVEMENT.PAYMENT.CREDIT_CARD";
+    public static final String CREDIT_CARD_CONSUMPTION = "MOVEMENT.CONSUMPTION.CREDIT_CARD";
+    public static final String DEBIT_CARD_PAYMENT = "MOVEMENT.PAYMENT.DEBIT_CARD";
+    public static final String DEBIT_CARD_WITHDRAWAL = "MOVEMENT.WITHDRAWAL.DEBIT_CARD";
     public static final String PERSONAL_CREDIT = "CREDIT.PERSONAL";
     public static final String BUSINESS_CREDIT = "CREDIT.BUSINESS";
-    public static final String PERSONAL_CREDIT_CARD = "CREDIT_CARD.PERSONAL";
-    public static final String BUSINESS_CREDIT_CARD = "CREDIT_CARD.BUSINESS";
-    public static final String TRANSACTION = "TRANSACTION";
+    public static final String PERSONAL_CREDIT_CARD = "CREDIT.CREDIT_CARD.PERSONAL";
+    public static final String BUSINESS_CREDIT_CARD = "CREDIT.CREDIT_CARD.BUSINESS";
+    public static final String TRANSACTION = "MOVEMENT.TRANSACTION";
     public static final String TRANSACTION_FEE = "TRANSACTION_FEE";
-    public static final double FEE = 3.50;
+    public static final Double FEE = 3.50;
 
 }

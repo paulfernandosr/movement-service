@@ -31,10 +31,13 @@ public interface IMovementService {
 
     Mono<MovementDto> registerCreditCardConsumption(MovementCreditDto movementCreditDto);
 
+    Mono<MovementDto> registerDebitCardPayment(MovementDebitCardDto movementDebitCardDto);
+
+    Mono<MovementDto> registerDebitCardWithdrawal(MovementDebitCardDto movementDebitCardDto);
+
     Mono<MovementDto> updateById(String id, MovementDto movementDto);
 
     Mono<Void> deleteById(String id);
-
 
 
 }
